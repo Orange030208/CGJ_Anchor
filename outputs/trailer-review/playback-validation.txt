@@ -1,0 +1,38 @@
+PASS - revised 77 second / 21 shot live trailer
+Original Resources/Logo opens the film; four original endings: storm, buggy, boutique, hit.
+Ending page turns, slow zoom and best-ending elastic return/pixel fireworks verified in captures.
+Five shop pages, each three items; 1 second holds and four 0.32 second turns.
+Real purchase and action progression; see runtime.txt.
+Four second slow-fast-slow flight: four cloud planes, velocity-driven vertical blur, original Bg and Start.
+All flight captures retain a clean 16:9 boundary.
+Breathing outline changes across final hold captures: 4.254.
+No runtime exceptions or script/shader compilation errors in this playback.
+[Trailer] Shot 01/21: Original studio Logo @ 0.00s
+[Trailer] Shot 02/21: Studio reveal @ 3.01s
+[Trailer] Shot 03/21: Code room details @ 7.00s
+[Trailer] Shot 04/21: Art room details @ 9.51s
+[Trailer] Shot 05/21: Audio room details @ 12.00s
+[Trailer] Shot 06/21: Five shop pages @ 15.01s
+[Trailer] Shot 07/21: Purchase closeup @ 22.01s
+[Trailer] Shot 08/21: Weekly event @ 25.01s
+[Trailer] Shot 09/21: Decision closeup @ 29.00s
+[Trailer] Shot 10/21: Program action and flame @ 32.00s
+[Trailer] Shot 11/21: Art action @ 36.01s
+[Trailer] Shot 12/21: Audio action @ 40.00s
+[Trailer] Shot 13/21: Weekly settlement animation @ 44.00s
+[Trailer] Shot 14/21: Score closeup @ 49.00s
+[Trailer] Shot 15/21: Ending 1 - storm @ 52.01s
+[Trailer] Shot 16/21: Ending 2 - buggy @ 54.40s
+[Trailer] Shot 17/21: Ending 3 - boutique @ 56.80s
+[Trailer] Shot 18/21: Ending 4 - hit and pixel fireworks @ 59.21s
+[Trailer] Shot 19/21: Studio farewell and fade to black @ 64.00s
+[Trailer] Shot 20/21: Fast nonlinear rise - sparse clouds and motion blur @ 66.00s
+[Trailer] Shot 21/21: Original Start breathing hold @ 70.01s
+[Trailer] Shop page 1/5 @ 15.65s: 美术资源展板, 塔罗水晶球, 里程碑奖杯; effect=画面值高于60时，每回合愿望单增长量提高50%。
+[Trailer] Shop page 2/5 @ 16.66s: 速写便签, 5090算力加速, 外包团队; effect=每回合在程序房消耗行动点数，愿望单+30000
+[Trailer] Shop page 3/5 @ 17.98s: 招财猫, 机械键盘, 全能咖啡机; effect=同一回合，在三个房间都消耗行动点，愿望单+200000
+[Trailer] Shop page 4/5 @ 19.29s: 调音台, 贝斯, 画笔; effect=每回合音效房选择消耗两点数选项，愿望单+50000
+[Trailer] Shop page 5/5 @ 20.62s: 能量饮料, 美术资源展板, 塔罗水晶球; effect=连续两回合在同一房间消耗点数，愿望单+80000
+[Trailer] Action: AP=3; visual=46; audio=5; wish=210016
+[Trailer] Action: AP=2; visual=51; audio=5; wish=210016
+[Trailer] Action: AP=0; visual=51; audio=19; wish=210016

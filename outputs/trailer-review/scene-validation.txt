@@ -1,0 +1,7 @@
+PASS
+Scene: Assets/Scenes/Gaming1_Trailer.unity
+Duration: 77.00001s
+Shots: 21
+Missing scripts: 0
+Required references: all present
+Source: Gaming1 scene, project artwork, original gameplay panels and audio

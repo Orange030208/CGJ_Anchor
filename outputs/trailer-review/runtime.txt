@@ -1,0 +1,16 @@
+Elapsed=77.00001; Duration=77.00001; Finished=True; Shot=20
+State=WeekResolve; month=2; week=1; AP=0; visual=51; audio=19; bug=78; quality=8; wish=370016; buffs=1; coins=554520
+Main Camera active=True position=(-7.64, 36.72, -10.02) scale=(1.00, 1.00, 1.00) components=Transform,Camera,AudioListener,UniversalAdditionalCameraData,CinemachineBrain
+Level/Rooms/RoomCode/Action/InteractItem active=True position=(-7.98, 1.54, -0.01) scale=(0.01, 0.01, 0.00) components=RectTransform,Canvas,CanvasScaler,GraphicRaycaster,ButtonPrefabSpawner
+Level/Rooms/RoomCode/Action/InteractItem/FloatingUI_Root active=False position=(-4.05, 0.91, -0.01) scale=(0.01, 0.01, 0.00) components=RectTransform,Canvas,CanvasScaler,GraphicRaycaster,FloatingUIFan,CanvasRenderer,FloatingUIActionPoints,FloatingUIManager
+Level/Rooms/RoomAudio/Action/InteractItem active=True position=(-3.11, -5.32, -0.01) scale=(0.01, 0.01, 0.00) components=RectTransform,Canvas,CanvasScaler,GraphicRaycaster,ButtonPrefabSpawner
+Level/Rooms/RoomAudio/Action/InteractItem/FloatingUI_Root active=False position=(0.81, -5.35, -0.01) scale=(0.01, 0.01, 0.00) components=RectTransform,Canvas,CanvasScaler,GraphicRaycaster,FloatingUIFan,CanvasRenderer,FloatingUIActionPoints,FloatingUIManager
+Level/Rooms/RoomArt/Action/InteractItem active=True position=(-12.00, -5.01, -0.01) scale=(0.01, 0.01, 0.00) components=RectTransform,Canvas,CanvasScaler,GraphicRaycaster,ButtonPrefabSpawner
+Level/Rooms/RoomArt/Action/InteractItem/FloatingUI_Root active=False position=(-8.08, -5.03, -0.01) scale=(0.01, 0.01, 0.00) components=RectTransform,Canvas,CanvasScaler,GraphicRaycaster,FloatingUIFan,CanvasRenderer,FloatingUIActionPoints,FloatingUIManager
+Level/Canvas active=False position=(-7.64, -2.78, -0.02) scale=(0.00, 0.00, 0.00) components=RectTransform,Canvas,CanvasScaler,GraphicRaycaster
+Secondary active=True position=(-7.64, 36.72, -8.02) scale=(0.02, 0.02, 0.02) components=RectTransform,Canvas,CanvasScaler,GraphicRaycaster,GameFlowPanelCoordinator,MenuGameBgmPlayer,AudioSource,AudioSource
+TRAILER - 77s - Play to watch/Trailer output camera active=True position=(0.00, 0.00, 0.00) scale=(1.00, 1.00, 1.00) components=Transform,Camera
+TRAILER - 77s - Play to watch/Trailer film active=True position=(556.60, 222.60, 0.00) scale=(0.49, 0.49, 0.49) components=RectTransform,Canvas,CanvasScaler
+ActionPointWarningHUD active=False position=(556.60, 222.60, 0.00) scale=(0.49, 0.49, 0.49) components=RectTransform,Canvas,CanvasScaler,GraphicRaycaster
+ActionPointWarningHUD active=False position=(556.60, 222.60, 0.00) scale=(0.49, 0.49, 0.49) components=RectTransform,Canvas,CanvasScaler,GraphicRaycaster
+ActionPointWarningHUD active=False position=(556.60, 222.60, 0.00) scale=(0.49, 0.49, 0.49) components=RectTransform,Canvas,CanvasScaler,GraphicRaycaster
