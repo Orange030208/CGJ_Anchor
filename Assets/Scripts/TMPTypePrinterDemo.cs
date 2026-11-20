@@ -137,7 +137,7 @@ public sealed class TMPTypePrinterDemo : MonoBehaviour
 
         dialogueText.maxVisibleCharacters = 0;
         isTyping = true;
-        typingCoroutine = StartCoroutine(TypeRoutine(totalCharacters));
+        typingCoroutine = StartCoroutine(TypeRoutine());
     }
 
     [ContextMenu("Show Full Text")]
@@ -167,29 +167,12 @@ public sealed class TMPTypePrinterDemo : MonoBehaviour
         ShowFullTextImmediate();
     }
 
-    private IEnumerator TypeRoutine(int totalCharacters)
+    private IEnumerator TypeRoutine()
     {
-        float visibleProgress = 0f;
-        int revealedCharacters = 0;
-
-        while (revealedCharacters < totalCharacters)
-        {
-            visibleProgress += charactersPerSecond * Time.deltaTime;
-            int nextVisibleCount = Mathf.Clamp(Mathf.FloorToInt(visibleProgress), 0, totalCharacters);
-
-            if (nextVisibleCount > revealedCharacters)
-            {
-                dialogueText.maxVisibleCharacters = nextVisibleCount;
-                PlayTypingSoundRange(revealedCharacters, nextVisibleCount);
-                revealedCharacters = nextVisibleCount;
-            }
-
-            yield return null;
-        }
+        yield return Anchor.UI.DialogueTypewriter.Reveal(dialogueText, charactersPerSecond, false, PlayTypingSoundRange);
 
         isTyping = false;
         typingCoroutine = null;
-        dialogueText.maxVisibleCharacters = totalCharacters;
         onTypewriterCompleted?.Invoke();
     }
 

@@ -9,6 +9,8 @@ using UnityEngine;
 public sealed class SumPanelTestAnimator : MonoBehaviour
 {
     public event Action Completed;
+    internal bool IsOpening => openingSequence.IsActive() && openingSequence.IsPlaying();
+    internal void CompleteOpening() => openingSequence.Complete(true);
 
     [Header("Timing")]
     [SerializeField, Min(0f)] private float initialDelay = 0.15f;

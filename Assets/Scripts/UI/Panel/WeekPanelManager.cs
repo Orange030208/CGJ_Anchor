@@ -160,6 +160,21 @@ namespace Anchor.UI.Panel
             gameObject.SetActive(false);
         }
 
+        internal void OpenPreview(int bug, int view, int audio, int wishlist)
+        {
+            Open();
+            sumPanelAnimator?.Play(bug, view, audio, wishlist);
+        }
+
+        internal bool IsOpening => (sumPanelAnimator != null && sumPanelAnimator.IsOpening)
+            || closeButtonPopupTween.IsActive() && closeButtonPopupTween.IsPlaying();
+
+        internal void CompleteOpening()
+        {
+            sumPanelAnimator?.CompleteOpening();
+            closeButtonPopupTween.Complete(true);
+        }
+
         /// <summary>
         /// 关闭 WeekPanel，并触发本次打开时注入的关闭回调。
         /// 原注释 --- 过期：关闭前需要先展示 Resources/Loading 过渡面板。

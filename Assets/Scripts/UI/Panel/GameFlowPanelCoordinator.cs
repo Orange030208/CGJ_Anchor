@@ -29,12 +29,18 @@ namespace Anchor.UI.Panel
         [SerializeField, Min(0f), Tooltip("阶段宣传图淡入和淡出各自持续的时长。")]
         private float monthSettlementPosterFadeDuration = 0.5f;
 
+        [Header("Tutorial")]
+        [SerializeField] private Sprite tutorialCharacter;
+        [SerializeField] private ButtonPrefabSpawner tutorialProgramRoom;
+        [SerializeField] private CinemachineScrollZoomController tutorialCameras;
+
         // 当前正在执行的流程 UI 协程。
         private Coroutine flowRoutine;
         // 防止按钮连点造成重复推进。
         private bool isAdvancingFlow;
         // 运行时生成的月结算阶段宣传图覆盖层。
         private GameObject monthSettlementPosterInstance;
+        private OnboardingTutorial tutorial;
 
         /// <summary>
         /// 获取当前场景的流程 UI 编排器；场景没放时运行时创建一个兜底对象。
@@ -90,7 +96,43 @@ namespace Anchor.UI.Panel
                 return;
             }
 
+            if (tutorialCharacter != null && tutorialProgramRoom != null
+                && tutorialCameras != null && MainPanelManager.Instance != null)
+            {
+                StartFlowRoutine(StartGameWithTutorial());
+                return;
+            }
+
             StartFlowRoutine(StartGameWithTransition());
+        }
+
+        private IEnumerator StartGameWithTutorial()
+        {
+            ScreenCircleTransition transition = ScreenCircleTransition.GetOrCreate();
+            yield return transition.PlayFade(() =>
+            {
+                tutorial = new OnboardingTutorial(tutorialCharacter, tutorialProgramRoom, tutorialCameras);
+                CloseBeginPanel();
+                MenuGameBgmPlayer.PlayGameMusic();
+            });
+            yield return tutorial.Play();
+
+            if (tutorial.Skipped)
+            {
+                tutorial.Dispose();
+                StartGameImmediately();
+            }
+            else
+            {
+                yield return transition.PlayClosingCircle(() =>
+                {
+                    tutorial.ClosePreview();
+                    StartGameImmediately();
+                });
+                tutorial.Dispose();
+            }
+
+            tutorial = null;
         }
 
         /// <summary>
@@ -381,6 +423,8 @@ namespace Anchor.UI.Panel
 
             StopBulletScreen();
             HideMonthSettlementPoster();
+            tutorial?.Dispose();
+            tutorial = null;
             isAdvancingFlow = false;
         }
 

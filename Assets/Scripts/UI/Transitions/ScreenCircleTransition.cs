@@ -96,6 +96,21 @@ namespace Anchor.UI.Transitions
 
         public IEnumerator Play(System.Action whileBlack)
         {
+            yield return Play(whileBlack, closeCircle: false);
+        }
+
+        public IEnumerator PlayClosingCircle(System.Action whileBlack)
+        {
+            yield return Play(whileBlack, closeCircle: true);
+        }
+
+        public IEnumerator PlayFade(System.Action whileBlack)
+        {
+            yield return Play(whileBlack, closeCircle: false, fadeReveal: true);
+        }
+
+        private IEnumerator Play(System.Action whileBlack, bool closeCircle, bool fadeReveal = false)
+        {
             if (isPlaying)
             {
                 yield break;
@@ -105,7 +120,14 @@ namespace Anchor.UI.Transitions
             EnsureOverlay();
             ShowOverlay();
 
-            yield return FadeToBlack();
+            if (closeCircle && overlayMaterial != null)
+            {
+                yield return AnimateRadius(CalculateCoverRadius(), -edgeSoftness, fadeToBlackDuration);
+            }
+            else
+            {
+                yield return AnimateOpacity(0f, 1f, fadeToBlackDuration);
+            }
 
             whileBlack?.Invoke();
 
@@ -114,50 +136,43 @@ namespace Anchor.UI.Transitions
                 yield return new WaitForSecondsRealtime(blackHoldDuration);
             }
 
-            yield return RevealFromCenter();
+            if (fadeReveal)
+            {
+                yield return AnimateOpacity(1f, 0f, fadeToBlackDuration);
+            }
+            else
+            {
+                yield return AnimateRadius(initialCircleRadius, CalculateCoverRadius(), revealDuration);
+            }
             HideOverlay();
             isPlaying = false;
         }
 
-        private IEnumerator FadeToBlack()
+        private IEnumerator AnimateOpacity(float from, float to, float duration)
         {
-            SetOverlayState(0f, 0f);
-
-            if (fadeToBlackDuration <= 0f)
-            {
-                SetOverlayState(1f, 0f);
-                yield break;
-            }
+            SetOverlayState(from, -edgeSoftness);
 
             float elapsed = 0f;
-            while (elapsed < fadeToBlackDuration)
+            while (elapsed < duration)
             {
                 elapsed += Time.unscaledDeltaTime;
-                float t = Mathf.Clamp01(elapsed / fadeToBlackDuration);
-                SetOverlayState(Smooth01(t), 0f);
+                float t = Mathf.Clamp01(elapsed / duration);
+                SetOverlayState(Mathf.Lerp(from, to, Smooth01(t)), -edgeSoftness);
                 yield return null;
             }
 
-            SetOverlayState(1f, 0f);
+            SetOverlayState(to, -edgeSoftness);
         }
 
-        private IEnumerator RevealFromCenter()
+        private IEnumerator AnimateRadius(float startRadius, float endRadius, float duration)
         {
-            float startRadius = initialCircleRadius;
-            float endRadius = CalculateCoverRadius();
             SetOverlayState(1f, startRadius);
 
-            if (revealDuration <= 0f)
-            {
-                SetOverlayState(1f, endRadius);
-                yield break;
-            }
-
             float elapsed = 0f;
-            while (elapsed < revealDuration)
+            while (elapsed < duration)
             {
                 elapsed += Time.unscaledDeltaTime;
-                float t = Mathf.Clamp01(elapsed / revealDuration);
+                float t = Mathf.Clamp01(elapsed / duration);
                 float radius = Mathf.Lerp(startRadius, endRadius, Smooth01(t));
                 SetOverlayState(1f, radius);
                 yield return null;
@@ -190,6 +205,11 @@ namespace Anchor.UI.Transitions
             scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
             scaler.referenceResolution = new Vector2(1920f, 1080f);
             scaler.matchWidthOrHeight = 0.5f;
+
+            if (GetComponent<GraphicRaycaster>() == null)
+            {
+                gameObject.AddComponent<GraphicRaycaster>();
+            }
 
             if (overlayImage == null)
             {

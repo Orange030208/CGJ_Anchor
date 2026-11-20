@@ -42,6 +42,8 @@ namespace Anchor.Window
         /// </summary>
         public bool IsPlaying => dropTween != null && dropTween.IsActive() && dropTween.IsPlaying();
 
+        internal void CompleteAnimation() => dropTween.Complete();
+
         /// <summary>
         /// 弹窗最终落点，来自 Awake 时记录的原始 anchoredPosition。
         /// </summary>

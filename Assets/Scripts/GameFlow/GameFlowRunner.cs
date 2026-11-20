@@ -69,6 +69,7 @@ namespace Anchor.GameFlow
             }
 
             CreateController();
+            mController.Blackboard.ResetForNewRun(mController.Settings);
         }
 
         /// <summary>

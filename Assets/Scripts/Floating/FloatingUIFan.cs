@@ -60,6 +60,8 @@ public sealed class FloatingUIFan : MonoBehaviour
     /// </summary>
     public bool IsTransitioning => transitionSequence != null;
 
+    internal void CompleteTransition() => transitionSequence.Complete(true);
+
     public UnityEvent OnOpenStarted => onOpenStarted;
     public UnityEvent OnOpened => onOpened;
     public UnityEvent OnCloseStarted => onCloseStarted;

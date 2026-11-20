@@ -77,6 +77,8 @@ namespace Anchor.UI.Panel
         private readonly HashSet<ButtonPrefabSpawner> openFloatingUIToggles = new HashSet<ButtonPrefabSpawner>();
 
         public TextMeshProUGUI WishlistText => wishlistText;
+        internal RectTransform WishlistRegion => wishlistText != null ? wishlistText.transform.parent as RectTransform : null;
+        internal RectTransform StatsRegion => audioText != null ? audioText.transform.parent.parent as RectTransform : null;
 
         /// <summary>
         /// Panel 启用时注册下一周按钮点击事件和流程数据刷新事件。

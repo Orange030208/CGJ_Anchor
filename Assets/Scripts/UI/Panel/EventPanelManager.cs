@@ -188,6 +188,18 @@ namespace Anchor.UI.Panel
             return true;
         }
 
+        internal bool IsOpening => panelSequence != null || typingCoroutine != null;
+
+        internal void CompleteOpening()
+        {
+            panelSequence?.Complete(true);
+            StopTypewriter();
+            if (eventContent != null)
+            {
+                eventContent.maxVisibleCharacters = int.MaxValue;
+            }
+        }
+
         /// <summary>
         /// 玩家点击 Yes 选项时提交肯定选择。
         /// </summary>

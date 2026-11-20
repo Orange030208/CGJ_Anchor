@@ -144,6 +144,11 @@ namespace Anchor.UI.Panel
         /// </summary>
         public void Open(Action closedCallback = null)
         {
+            OpenWindow(closedCallback, null);
+        }
+
+        private void OpenWindow(Action closedCallback, Action populatePreview)
+        {
             onClosed = closedCallback;
             EnsureBuffWindowAnimator();
             EnsureAudioSource();
@@ -161,9 +166,47 @@ namespace Anchor.UI.Panel
 
             ResetRefreshButtonForOpen();
             RefreshDollarText();
-            RequestBudgetShopBuffOffersRefresh();
+            if (populatePreview == null)
+            {
+                RequestBudgetShopBuffOffersRefresh();
+            }
+            else
+            {
+                populatePreview();
+            }
             PlayOneShot(panelOpenSound, panelOpenSoundVolume);
             buffWindowAnimator.Open();
+        }
+
+        internal void OpenPreview(IReadOnlyList<BuffRow> offers, BuffRow featuredOffer, int budget)
+        {
+            OpenWindow(null, () =>
+            {
+                InjectData(offers);
+                SetDollarTextValue(budget);
+                EnsureIntroductionWindow();
+                if (introductionWindow != null)
+                {
+                    InjectIntroductionData(featuredOffer);
+                    introductionWindow.SetBuyAction(null);
+                    introductionWindow.Open();
+                }
+            });
+        }
+
+        internal RectTransform BudgetRegion => dollarText != null ? dollarText.transform.parent as RectTransform : null;
+        internal RectTransform ShopRegion => buffWindowAnimator != null ? buffWindowAnimator.transform as RectTransform : null;
+        internal bool IsOpening => buffWindowAnimator != null && buffWindowAnimator.IsPlaying;
+        internal void CompleteOpening() => buffWindowAnimator?.CompleteAnimation();
+
+        internal void ClosePreview()
+        {
+            if (introductionWindow != null)
+            {
+                introductionWindow.gameObject.SetActive(false);
+            }
+            ClearGeneratedBuffCards();
+            gameObject.SetActive(false);
         }
 
         /// <summary>
