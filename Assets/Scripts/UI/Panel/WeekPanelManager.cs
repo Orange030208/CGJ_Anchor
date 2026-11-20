@@ -122,6 +122,16 @@ namespace Anchor.UI.Panel
             KillCloseButtonPopup();
         }
 
+        private void LateUpdate()
+        {
+            // A stopped or missing opening tween can leave the panel without a completion callback.
+            if (!isClosing && closeButton != null && !closeButton.gameObject.activeSelf
+                && sumPanelAnimator != null && !sumPanelAnimator.IsOpening)
+            {
+                OnSumPanelAnimationCompleted();
+            }
+        }
+
         /// <summary>
         /// 外部打开 WeekPanel 的入口，并记录关闭后继续流程的回调。
         /// </summary>
@@ -563,8 +573,13 @@ namespace Anchor.UI.Panel
 
         private void OnSumPanelAnimationCompleted()
         {
-            PlayWishlistCollectionEffect();
+            if (isClosing || (closeButton != null && closeButton.gameObject.activeSelf))
+            {
+                return;
+            }
+
             ShowCloseButton();
+            PlayWishlistCollectionEffect();
         }
 
         private void ResolveCloseButton()

@@ -102,6 +102,15 @@ public sealed class IntroductionWindowController : MonoBehaviour
         }
     }
 
+    public void SetPurchaseVisible(bool visible)
+    {
+        EnsureButtonReferences();
+        if (buyButton != null)
+        {
+            buyButton.gameObject.SetActive(visible);
+        }
+    }
+
     /// <summary>
     /// 关闭 Buff 介绍二级弹窗。
     /// </summary>

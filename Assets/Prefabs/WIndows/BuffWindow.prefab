@@ -1078,6 +1078,7 @@ MonoBehaviour:
   buffCardRoot: {fileID: 449712402771711849}
   buffCardPrefab: {fileID: 2780075506762376919, guid: 1ecd46fa01d74434390135624a295410, type: 3}
   introductionWindow: {fileID: 0}
+  inventoryBackground: {fileID: 21300000, guid: 0c4a51f7aabe45dab773e61f50ea2d4a, type: 3}
   dollarText: {fileID: 2195688217187972235}
   dollarChangeScaleDuration: 0.12
   dollarChangeRestoreDuration: 0.18

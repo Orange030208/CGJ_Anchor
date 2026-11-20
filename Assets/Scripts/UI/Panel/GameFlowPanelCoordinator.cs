@@ -178,6 +178,13 @@ namespace Anchor.UI.Panel
         public void ReturnToBeginPanel()
         {
             StopFlowRoutine();
+            WindowShopPanelManager.Instance?.CloseInventory();
+            foreach (var spawner in FindObjectsOfType<ButtonPrefabSpawner>())
+            {
+                spawner.CloseTargetObject();
+                spawner.GetComponentInChildren<FloatingUIFan>(true)?.CompleteTransition();
+            }
+            FindObjectOfType<CinemachineScrollZoomController>()?.SwitchToDefaultCamera();
             CloseBuffWindow();
             CloseEventPanel();
             CloseMainPanel();

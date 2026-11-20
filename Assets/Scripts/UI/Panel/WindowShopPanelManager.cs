@@ -32,6 +32,8 @@ namespace Anchor.UI.Panel
         [SerializeField, Tooltip("BuffWindow 的二级介绍弹窗控制器。为空时会从当前物体或子物体查找。")]
         private IntroductionWindowController introductionWindow;
 
+        [SerializeField] private Sprite inventoryBackground;
+
         [Header("Dollar")]
         [SerializeField, Tooltip("显示玩家当前金币数量的 Dollar 文本。为空时会自动查找名为 Dollar 的 UI 节点。")]
         private TextMeshProUGUI dollarText;
@@ -113,6 +115,22 @@ namespace Anchor.UI.Panel
 
         // 当前 BuffWindow 关闭后要交还给流程编排器执行的回调。
         private Action onClosed;
+        private const int InventoryColumns = 3;
+        private const int InventoryPageSize = InventoryColumns * 3;
+        private List<BuffRow> inventoryItems;
+        private int inventoryPage;
+        private int shopSiblingIndex;
+        private GameObject inventoryShade;
+        private TextMeshProUGUI inventoryLabel;
+        private RectTransform inventoryCardRoot;
+        private Sprite shopBackground;
+        private Button inventoryPrevious;
+        private Button inventoryNext;
+        private bool previousWasActive;
+        private bool nextWasActive;
+        private bool shopLabelWasActive;
+        private UnityEngine.EventSystems.EventSystem inventoryEventSystem;
+        private bool inventoryNavigation;
 
         /// <summary>
         /// Panel 启用时注册关闭按钮点击事件。
@@ -137,6 +155,7 @@ namespace Anchor.UI.Panel
             UnregisterCloseButtonClick();
             UnregisterRefreshButtonClick();
             StopDollarTextAnimation();
+            RestoreShopAfterInventory();
         }
 
         /// <summary>
@@ -145,6 +164,164 @@ namespace Anchor.UI.Panel
         public void Open(Action closedCallback = null)
         {
             OpenWindow(closedCallback, null);
+        }
+
+        internal void OpenInventory(IReadOnlyList<int> purchasedIds, TMP_FontAsset font)
+        {
+            if (gameObject.activeSelf || purchasedIds == null)
+            {
+                return;
+            }
+
+            EnsureBuffWindowAnimator();
+            if (buffWindowAnimator == null)
+            {
+                return;
+            }
+
+            inventoryItems = new List<BuffRow>(purchasedIds.Count);
+            var buffs = Anchor.Config.GameConfigs.Tables.Tbbuff;
+            foreach (int id in purchasedIds)
+            {
+                BuffRow row = buffs.GetOrDefault(id);
+                if (row != null) inventoryItems.Add(row);
+            }
+
+            inventoryPage = 0;
+            shopSiblingIndex = transform.GetSiblingIndex();
+            inventoryShade = GameplayHudActions.AddShade(transform.parent).gameObject;
+            transform.SetAsLastSibling();
+            inventoryEventSystem = UnityEngine.EventSystems.EventSystem.current;
+            if (inventoryEventSystem != null)
+            {
+                inventoryNavigation = inventoryEventSystem.sendNavigationEvents;
+                inventoryEventSystem.SetSelectedGameObject(null);
+                inventoryEventSystem.sendNavigationEvents = false;
+            }
+
+            OpenWindow(null, () =>
+            {
+                HideRefreshButtonAfterUse();
+                EnsureInventoryGrid();
+                if (inventoryBackground != null && TryGetComponent(out Image background))
+                {
+                    shopBackground = background.sprite;
+                    background.sprite = inventoryBackground;
+                }
+                var purchaseLimit = transform.Find("Text (TMP)");
+                shopLabelWasActive = purchaseLimit != null && purchaseLimit.gameObject.activeSelf;
+                if (purchaseLimit != null) purchaseLimit.gameObject.SetActive(false);
+
+                inventoryPrevious = FindChildByName(transform, "Left")?.GetComponent<Button>();
+                inventoryNext = FindChildByName(transform, "Right")?.GetComponent<Button>();
+                previousWasActive = inventoryPrevious != null && inventoryPrevious.gameObject.activeSelf;
+                nextWasActive = inventoryNext != null && inventoryNext.gameObject.activeSelf;
+                if (inventoryPrevious != null) inventoryPrevious.onClick.AddListener(ShowPreviousInventoryPage);
+                if (inventoryNext != null) inventoryNext.onClick.AddListener(ShowNextInventoryPage);
+
+                if (inventoryLabel == null)
+                {
+                    inventoryLabel = GameplayHudActions.AddLabel("Inventory status", transform, font, 38);
+                    RectTransform labelRect = inventoryLabel.rectTransform;
+                    labelRect.sizeDelta = new Vector2(620f, 64f);
+                }
+                inventoryLabel.gameObject.SetActive(true);
+                ShowInventoryPage();
+            });
+        }
+
+        internal void CloseInventory()
+        {
+            if (inventoryItems != null) gameObject.SetActive(false);
+        }
+
+        private void EnsureInventoryGrid()
+        {
+            if (inventoryCardRoot != null) return;
+            var gridObject = new GameObject("Inventory grid", typeof(RectTransform), typeof(GridLayoutGroup));
+            inventoryCardRoot = (RectTransform)gridObject.transform;
+            inventoryCardRoot.SetParent(transform, false);
+            inventoryCardRoot.SetAsFirstSibling();
+            inventoryCardRoot.anchoredPosition = new Vector2(0, 4);
+            inventoryCardRoot.sizeDelta = new Vector2(640, 539);
+            var grid = gridObject.GetComponent<GridLayoutGroup>();
+            grid.cellSize = new Vector2(204, 175);
+            grid.spacing = new Vector2(14, 7);
+            grid.childAlignment = TextAnchor.UpperLeft;
+            grid.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
+            grid.constraintCount = InventoryColumns;
+        }
+
+        private void ShowPreviousInventoryPage()
+        {
+            inventoryPage--;
+            ShowInventoryPage();
+        }
+
+        private void ShowNextInventoryPage()
+        {
+            inventoryPage++;
+            ShowInventoryPage();
+        }
+
+        private void ShowInventoryPage()
+        {
+            int lastPage = Mathf.Max(0, (inventoryItems.Count - 1) / InventoryPageSize);
+            inventoryPage = Mathf.Clamp(inventoryPage, 0, lastPage);
+            int start = inventoryPage * InventoryPageSize;
+            int count = Mathf.Min(InventoryPageSize, inventoryItems.Count - start);
+            InjectData(inventoryItems.GetRange(start, count));
+            bool empty = inventoryItems.Count == 0;
+            inventoryLabel.text = empty ? "还没有购买道具" : $"{inventoryPage + 1}/{lastPage + 1}";
+            RectTransform labelRect = inventoryLabel.rectTransform;
+            labelRect.anchorMin = labelRect.anchorMax = new Vector2(0.5f, empty ? 0.5f : 1f);
+            labelRect.anchoredPosition = empty ? Vector2.zero : new Vector2(0f, -43f);
+            inventoryLabel.enabled = empty || lastPage > 0;
+            if (inventoryPrevious != null) inventoryPrevious.gameObject.SetActive(inventoryPage > 0);
+            if (inventoryNext != null) inventoryNext.gameObject.SetActive(inventoryPage < lastPage);
+        }
+
+        private void RestoreShopAfterInventory()
+        {
+            if (inventoryItems == null) return;
+            inventoryItems = null;
+            if (shopBackground != null && TryGetComponent(out Image background))
+            {
+                background.sprite = shopBackground;
+                shopBackground = null;
+            }
+            if (inventoryPrevious != null)
+            {
+                inventoryPrevious.onClick.RemoveListener(ShowPreviousInventoryPage);
+                inventoryPrevious.gameObject.SetActive(previousWasActive);
+            }
+            if (inventoryNext != null)
+            {
+                inventoryNext.onClick.RemoveListener(ShowNextInventoryPage);
+                inventoryNext.gameObject.SetActive(nextWasActive);
+            }
+            var purchaseLimit = transform.Find("Text (TMP)");
+            if (purchaseLimit != null) purchaseLimit.gameObject.SetActive(shopLabelWasActive);
+            if (inventoryLabel != null) inventoryLabel.gameObject.SetActive(false);
+            if (introductionWindow != null)
+            {
+                introductionWindow.Close();
+                introductionWindow.SetPurchaseVisible(true);
+            }
+            ClearGeneratedBuffCards();
+            if (inventoryShade != null)
+            {
+                inventoryShade.SetActive(false);
+                Destroy(inventoryShade);
+                inventoryShade = null;
+            }
+            transform.SetSiblingIndex(shopSiblingIndex);
+            if (inventoryEventSystem != null)
+            {
+                inventoryEventSystem.SetSelectedGameObject(null);
+                inventoryEventSystem.sendNavigationEvents = inventoryNavigation;
+                inventoryEventSystem = null;
+            }
         }
 
         private void OpenWindow(Action closedCallback, Action populatePreview)
@@ -336,7 +513,9 @@ namespace Anchor.UI.Panel
             }
 
             InjectIntroductionData(buffRow);
-            introductionWindow.SetBuyAction(() => TryPurchaseIntroductionBuff(buffRow));
+            bool canPurchase = inventoryItems == null;
+            introductionWindow.SetPurchaseVisible(canPurchase);
+            introductionWindow.SetBuyAction(canPurchase ? () => TryPurchaseIntroductionBuff(buffRow) : null);
             introductionWindow.Open();
         }
 
@@ -362,6 +541,8 @@ namespace Anchor.UI.Panel
         /// </summary>
         private void OnBudgetShopBuffOffersRefreshed(BudgetShopBuffOffersRefreshedEvent flowEvent)
         {
+            if (inventoryItems != null) return;
+
             GameFlowRunner runner = GameFlowRunner.Instance;
             if (runner != null && runner.Controller != null && flowEvent.Blackboard != runner.Controller.Blackboard)
             {
@@ -627,6 +808,8 @@ namespace Anchor.UI.Panel
         /// </summary>
         private void OnRefreshButtonClicked()
         {
+            if (inventoryItems != null) return;
+
             RequestBudgetShopBuffOffersRefresh();
             HideRefreshButtonAfterUse();
         }
@@ -838,7 +1021,21 @@ namespace Anchor.UI.Panel
         /// </summary>
         private void CreateBuffCard(BuffRow buffRow, int index)
         {
-            BuffCardController buffCard = Instantiate(buffCardPrefab, buffCardRoot);
+            RectTransform parent = buffCardRoot;
+            if (inventoryItems != null)
+            {
+                parent = (RectTransform)new GameObject("Inventory slot", typeof(RectTransform)).transform;
+                parent.SetParent(inventoryCardRoot, false);
+            }
+
+            BuffCardController buffCard = Instantiate(buffCardPrefab, parent);
+            if (inventoryItems != null)
+            {
+                var rect = (RectTransform)buffCard.transform;
+                rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 0.5f);
+                rect.anchoredPosition = Vector2.zero;
+                rect.localScale = Vector3.one * 0.55f;
+            }
             string buffTitle = GetBuffTitle(buffRow);
             Sprite buffIcon = LoadBuffIconByTitle(buffTitle);
 
@@ -868,6 +1065,8 @@ namespace Anchor.UI.Panel
         /// </summary>
         private void TryPurchaseIntroductionBuff(BuffRow buffRow)
         {
+            if (inventoryItems != null) return;
+
             if (buffRow == null)
             {
                 Debug.LogWarning($"{nameof(WindowShopPanelManager)} cannot purchase an empty Buff.", this);
@@ -1057,15 +1256,19 @@ namespace Anchor.UI.Panel
         /// <summary>
         /// 按当前运行环境销毁动态生成的 BuffCard。
         /// </summary>
-        private static void DestroyGeneratedBuffCard(BuffCardController buffCard)
+        private void DestroyGeneratedBuffCard(BuffCardController buffCard)
         {
+            Transform parent = buffCard.transform.parent;
+            GameObject card = inventoryCardRoot != null && parent.parent == inventoryCardRoot
+                ? parent.gameObject : buffCard.gameObject;
             if (Application.isPlaying)
             {
-                Destroy(buffCard.gameObject);
+                card.SetActive(false);
+                Destroy(card);
                 return;
             }
 
-            DestroyImmediate(buffCard.gameObject);
+            DestroyImmediate(card);
         }
 
         /// <summary>

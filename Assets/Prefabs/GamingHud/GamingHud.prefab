@@ -1507,6 +1507,8 @@ MonoBehaviour:
   statusIncreaseColor: {r: 0, g: 1, b: 0, a: 1}
   statusDecreaseColor: {r: 1, g: 0, b: 0, a: 1}
   nextWeekButton: {fileID: 7643605794131197719}
+  returnToMenuIcon: {fileID: 21300000, guid: 3a124bff5e014bdeabac8fad8e9a7c60, type: 3}
+  inventoryIcon: {fileID: 21300000, guid: 96c36595049f4c90a74321c0ee96d3ca, type: 3}
 --- !u!1 &4961617666555736556
 GameObject:
   m_ObjectHideFlags: 0

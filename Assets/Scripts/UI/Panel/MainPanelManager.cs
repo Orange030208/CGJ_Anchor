@@ -59,6 +59,11 @@ namespace Anchor.UI.Panel
         [SerializeField, Tooltip("点击后结束本周行动并关闭 MainPanel 的按钮。")]
         private Button nextWeekButton;
 
+        [Header("Game Menu")]
+        [SerializeField] private Sprite returnToMenuIcon;
+        [SerializeField] private Sprite inventoryIcon;
+        private GameplayHudActions gameplayActions;
+
         // 当前 MainPanel 关闭后要交还给流程编排器执行的回调。
         private Action onClosed;
         // 是否已经记录过上一次流程数值；第一次刷新只赋值不播放变化动画。
@@ -105,6 +110,15 @@ namespace Anchor.UI.Panel
         /// </summary>
         public void Open(Action closedCallback = null)
         {
+            if (gameplayActions == null && returnToMenuIcon != null && inventoryIcon != null)
+            {
+                gameplayActions = GameplayHudActions.Create(
+                    transform, wishlistText != null ? wishlistText.font : null, returnToMenuIcon, inventoryIcon);
+            }
+            if (gameplayActions != null)
+            {
+                gameplayActions.gameObject.SetActive(closedCallback != null);
+            }
             onClosed = closedCallback;
             openFloatingUIToggles.Clear();
 

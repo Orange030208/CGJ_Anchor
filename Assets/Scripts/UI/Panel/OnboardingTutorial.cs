@@ -19,6 +19,7 @@ namespace Anchor.UI.Panel
             "我每周精力有限，需要好好规划一下开发进度",
             "这些数值代表游戏各方面的质量，<color=#A61938>能直接影响游戏发售后的结局</color>",
             "毕竟愿望单再高，游戏质量不行也是容易褒姒的",
+            "随着开发的进行，<color=#9A4100>Bug每周都会增加</color>，记得让程序及时修！",
             "在对应房间分配精力则可以提升游戏质量或减少bug数量",
             "开发过程中每周都会遇到一些突发事件，可能会对游戏造成一些影响，得谨慎考虑一下",
             "按照以往经验，每个月都有神秘的奸商到访工作室，他的道具或许会影响我这个月的选择......",
@@ -125,20 +126,21 @@ namespace Anchor.UI.Panel
                     break;
                 case 4:
                 case 5:
+                case 6:
                     highlight = FocusGraphics(main.StatsRegion);
                     break;
-                case 6:
+                case 7:
                     showingRoom = true;
                     programRoom.InvokeToggleButtonClick();
                     highlight = () => new Rect(0.34f, 0.02f, 0.60f, 0.94f);
                     break;
-                case 7:
+                case 8:
                     CloseRoom();
                     var exampleEvent = GameConfigs.Tables.TbgameEvent.GetOrDefault(2012);
                     showingEvent = eventPanel != null && eventPanel.Open(exampleEvent);
                     highlight = () => new Rect(0.035f, 0.025f, 0.93f, 0.92f);
                     break;
-                case 8:
+                case 9:
                     CloseEvent();
                     if (shop != null)
                     {
@@ -150,13 +152,13 @@ namespace Anchor.UI.Panel
                         highlight = () => BoundsOf(shop.ShopRegion);
                     }
                     break;
-                case 9:
+                case 10:
                     if (showingShop)
                     {
                         highlight = FocusGraphics(shop.BudgetRegion);
                     }
                     break;
-                case 10:
+                case 11:
                     CloseShop();
                     if (week != null)
                     {
@@ -165,7 +167,7 @@ namespace Anchor.UI.Panel
                     }
                     highlight = () => new Rect(0.06f, 0.03f, 0.90f, 0.94f);
                     break;
-                case 11:
+                case 12:
                     CloseWeek();
                     break;
             }
