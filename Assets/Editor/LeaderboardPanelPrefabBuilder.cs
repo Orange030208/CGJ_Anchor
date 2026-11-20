@@ -12,10 +12,11 @@ namespace Anchor.Editor
         private const string PrefabPath = "Assets/Prefabs/LeaderboardPanel.prefab";
         private const string FontPath = "Assets/Resources/Fonts/fusion-pixel-10px-monospaced-zh_hans SDF.asset";
         private const float RankColumnWidth = 84f;
+        private const float NicknameColumnWidth = 320f;
+        private const float EndingColumnWidth = 280f;
         private const float QualityColumnWidth = 120f;
         private const float WishlistColumnWidth = 200f;
         private const float TimeColumnWidth = 190f;
-        private const float FlexibleInfoMinWidth = 300f;
 
         [MenuItem("Anchor/UI/Rebuild Leaderboard Panel Prefab")]
         public static void RebuildPrefab()
@@ -126,7 +127,8 @@ namespace Anchor.Editor
             layout.childForceExpandWidth = false;
 
             AddHeaderLabel(rect, "名次", RankColumnWidth, TextAlignmentOptions.Center);
-            AddHeaderLabel(rect, "昵称与结局", 0f, TextAlignmentOptions.Left);
+            AddHeaderLabel(rect, "昵称", NicknameColumnWidth, TextAlignmentOptions.Left);
+            AddHeaderLabel(rect, "结局", EndingColumnWidth, TextAlignmentOptions.Left, flexible: true);
             AddHeaderLabel(rect, "质量分", QualityColumnWidth, TextAlignmentOptions.Center);
             AddHeaderLabel(rect, "愿望单", WishlistColumnWidth, TextAlignmentOptions.Center);
             AddHeaderLabel(rect, "完成时间", TimeColumnWidth, TextAlignmentOptions.Center);
@@ -200,8 +202,9 @@ namespace Anchor.Editor
             layout.childForceExpandWidth = false;
 
             TextMeshProUGUI rankText = AddRowText(rect, "RankText", "1", 36, RankColumnWidth, TextAlignmentOptions.Center);
+            TextMeshProUGUI nameText = AddRowText(rect, "NameText", "制作人", 30, NicknameColumnWidth, TextAlignmentOptions.Left);
             RectTransform infoStack = CreateInfoStack(rect);
-            TextMeshProUGUI nameText = CreateText("NameText", infoStack, "制作人", 30, FontStyles.Bold, TextAlignmentOptions.Left);
+            TextMeshProUGUI endingText = CreateText("EndingText", infoStack, "好评如潮", 30, FontStyles.Bold, TextAlignmentOptions.Left);
             TextMeshProUGUI summaryText = CreateText("SummaryText", infoStack, "结局简介", 21, FontStyles.Normal, TextAlignmentOptions.Left);
             TextMeshProUGUI qualityText = AddRowText(rect, "QualityText", "82", 30, QualityColumnWidth, TextAlignmentOptions.Center);
             TextMeshProUGUI wishlistText = AddRowText(rect, "WishlistText", "4,500,000", 28, WishlistColumnWidth, TextAlignmentOptions.Center);
@@ -214,7 +217,9 @@ namespace Anchor.Editor
             nameText.enableWordWrapping = false;
             nameText.richText = false;
             nameText.parseCtrlCharacters = false;
+            endingText.color = Color.white;
             summaryText.color = new Color(0.76f, 0.84f, 0.92f, 0.86f);
+            summaryText.enableWordWrapping = false;
             rankText.color = new Color(1f, 0.94f, 0.70f, 1f);
             qualityText.color = new Color(0.74f, 1f, 0.76f, 1f);
             wishlistText.color = new Color(1f, 0.78f, 0.88f, 1f);
@@ -223,6 +228,7 @@ namespace Anchor.Editor
             LeaderboardEntryView view = row.AddComponent<LeaderboardEntryView>();
             AssignObject(view, "rankText", rankText);
             AssignObject(view, "nameText", nameText);
+            AssignObject(view, "endingText", endingText);
             AssignObject(view, "qualityText", qualityText);
             AssignObject(view, "wishlistText", wishlistText);
             AssignObject(view, "timeText", timeText);
@@ -250,7 +256,8 @@ namespace Anchor.Editor
 
             LayoutElement element = stackObject.AddComponent<LayoutElement>();
             element.flexibleWidth = 1f;
-            element.minWidth = FlexibleInfoMinWidth;
+            element.minWidth = EndingColumnWidth;
+            element.preferredWidth = EndingColumnWidth;
 
             VerticalLayoutGroup layout = stackObject.AddComponent<VerticalLayoutGroup>();
             layout.spacing = 3f;
@@ -263,22 +270,15 @@ namespace Anchor.Editor
             return rect;
         }
 
-        private static void AddHeaderLabel(RectTransform parent, string text, float width, TextAlignmentOptions alignment)
+        private static void AddHeaderLabel(RectTransform parent, string text, float width, TextAlignmentOptions alignment, bool flexible = false)
         {
             TextMeshProUGUI label = CreateText($"Header_{text}", parent, text, 24, FontStyles.Bold, alignment);
             label.color = new Color(0.70f, 0.82f, 0.94f, 0.92f);
 
             LayoutElement element = label.gameObject.AddComponent<LayoutElement>();
-            if (width > 0f)
-            {
-                element.preferredWidth = width;
-                element.minWidth = width;
-            }
-            else
-            {
-                element.flexibleWidth = 1f;
-                element.minWidth = FlexibleInfoMinWidth;
-            }
+            element.preferredWidth = width;
+            element.minWidth = width;
+            element.flexibleWidth = flexible ? 1f : 0f;
         }
 
         private static TextMeshProUGUI AddRowText(

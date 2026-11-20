@@ -12,7 +12,7 @@ namespace Anchor.UI.Panel
         [SerializeField, Tooltip("显示名次的文本。")]
         private TextMeshProUGUI rankText;
 
-        [SerializeField, Tooltip("显示昵称，旧记录没有昵称时显示结局名称。")]
+        [SerializeField, Tooltip("显示本局保存的昵称。")]
         private TextMeshProUGUI nameText;
 
         [SerializeField, Tooltip("显示质量分的文本。")]
@@ -41,22 +41,13 @@ namespace Anchor.UI.Panel
 
         public void InjectData(int rank, LeaderboardRowData data)
         {
-            string displayName = FormatName(rank, data);
-            string summary = data.Summary;
             SetText(rankText, rank.ToString());
-            SetText(nameText, displayName);
+            SetText(nameText, string.IsNullOrWhiteSpace(data.PlayerName) ? "--" : data.PlayerName);
+            SetText(endingText, string.IsNullOrWhiteSpace(data.EndingName) ? "未记录结局" : data.EndingName);
             SetText(qualityText, FormatOptionalNumber(data.QualityScore));
             SetText(wishlistText, FormatOptionalNumber(data.WishlistCount));
-            if (endingText != null && endingText != nameText)
-            {
-                SetText(endingText, string.IsNullOrWhiteSpace(data.EndingName) ? "未记录结局" : data.EndingName);
-            }
-            else if (!string.IsNullOrWhiteSpace(data.EndingName) && data.EndingName != displayName)
-            {
-                summary = string.IsNullOrWhiteSpace(summary) ? data.EndingName : $"{data.EndingName} · {summary}";
-            }
             SetText(timeText, FormatCompletedTime(data.CompletedAtUtcTicks));
-            SetSummary(summary);
+            SetSummary(data.Summary);
             ApplyRankColor(rank);
         }
 
@@ -86,21 +77,6 @@ namespace Anchor.UI.Panel
                 3 => thirdPlaceColor,
                 _ => normalColor
             };
-        }
-
-        private static string FormatName(int rank, LeaderboardRowData data)
-        {
-            if (!string.IsNullOrWhiteSpace(data.PlayerName))
-            {
-                return data.PlayerName;
-            }
-
-            if (!string.IsNullOrWhiteSpace(data.EndingName))
-            {
-                return data.EndingName;
-            }
-
-            return $"第 {rank} 名";
         }
 
         private static string FormatOptionalNumber(int value)
