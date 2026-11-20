@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.IO;
 using UnityEngine;
 
@@ -10,6 +11,7 @@ namespace Anchor.GameFlow
     {
         public readonly int Rank;
         public readonly string RunId;
+        public readonly string Nickname;
         public readonly int LeaderboardScore;
         public readonly int QualityScore;
         public readonly int WishlistCount;
@@ -21,6 +23,7 @@ namespace Anchor.GameFlow
         internal GameLeaderboardEntry(
             int rank,
             string runId,
+            string nickname,
             int leaderboardScore,
             int qualityScore,
             int wishlistCount,
@@ -31,6 +34,7 @@ namespace Anchor.GameFlow
         {
             Rank = rank;
             RunId = runId;
+            Nickname = nickname;
             LeaderboardScore = leaderboardScore;
             QualityScore = qualityScore;
             WishlistCount = wishlistCount;
@@ -45,6 +49,8 @@ namespace Anchor.GameFlow
 
     public static class GameLeaderboardService
     {
+        public const int MaxNicknameLength = 12;
+
         private const string SaveFileName = "game_leaderboard.json";
         private const double QualityPower = 1.1d;
         private const double QualityMultiplier = 100d;
@@ -98,6 +104,88 @@ namespace Anchor.GameFlow
 
             var rank = sData.entries.IndexOf(record) + 1;
             return ToEntry(record, rank);
+        }
+
+        public static bool TrySetNickname(string runId, string nickname, out string error)
+        {
+            if (!TryNormalizeNickname(nickname, out string normalized, out error))
+            {
+                return false;
+            }
+
+            EnsureLoaded();
+            var record = string.IsNullOrEmpty(runId) ? null : sData.entries.Find(entry => entry.runId == runId);
+            if (record == null)
+            {
+                error = "找不到这次通关记录。";
+                return false;
+            }
+
+            if (!string.IsNullOrEmpty(record.nickname))
+            {
+                if (string.Equals(record.nickname, normalized, StringComparison.Ordinal))
+                {
+                    return true;
+                }
+
+                error = "这次通关记录已经填写过昵称。";
+                return false;
+            }
+
+            if (sData.entries.Exists(entry => string.Equals(entry.nickname, normalized, StringComparison.OrdinalIgnoreCase)))
+            {
+                error = "这个昵称已被使用，请换一个。";
+                return false;
+            }
+
+            string previousNickname = record.nickname;
+            record.nickname = normalized;
+            if (Save())
+            {
+                return true;
+            }
+
+            record.nickname = previousNickname;
+            error = "保存排行榜失败，请重试。";
+            return false;
+        }
+
+        internal static bool TryNormalizeNickname(string nickname, out string normalized, out string error)
+        {
+            normalized = string.Empty;
+            error = "昵称包含无效字符。";
+            nickname = NullToEmpty(nickname);
+
+            for (var i = 0; i < nickname.Length; i++)
+            {
+                var category = CharUnicodeInfo.GetUnicodeCategory(nickname, i);
+                if (category is UnicodeCategory.Control or UnicodeCategory.Format or UnicodeCategory.Surrogate
+                    or UnicodeCategory.LineSeparator or UnicodeCategory.ParagraphSeparator)
+                {
+                    return false;
+                }
+
+                if (char.IsHighSurrogate(nickname[i]))
+                {
+                    i++;
+                }
+            }
+
+            normalized = nickname.Trim().Normalize();
+            if (normalized.Length == 0)
+            {
+                error = "请输入昵称。";
+                return false;
+            }
+
+            if (normalized.Length > MaxNicknameLength)
+            {
+                error = $"昵称最多 {MaxNicknameLength} 个字符。";
+                return false;
+            }
+
+            error = null;
+            return true;
         }
 
         public static int CalculateLeaderboardScore(int qualityScore, int wishlistCount)
@@ -186,7 +274,7 @@ namespace Anchor.GameFlow
             }
         }
 
-        private static void Save()
+        private static bool Save()
         {
             try
             {
@@ -197,11 +285,23 @@ namespace Anchor.GameFlow
                     Directory.CreateDirectory(directory);
                 }
 
-                File.WriteAllText(path, JsonUtility.ToJson(sData, true));
+                var temporaryPath = path + ".tmp";
+                File.WriteAllText(temporaryPath, JsonUtility.ToJson(sData, true));
+                if (File.Exists(path))
+                {
+                    File.Replace(temporaryPath, path, null);
+                }
+                else
+                {
+                    File.Move(temporaryPath, path);
+                }
+
+                return true;
             }
             catch (Exception exception)
             {
                 Debug.LogWarning($"保存排行榜失败：{exception.Message}");
+                return false;
             }
         }
 
@@ -283,6 +383,7 @@ namespace Anchor.GameFlow
             return new GameLeaderboardEntry(
                 rank,
                 NullToEmpty(entry.runId),
+                NullToEmpty(entry.nickname),
                 leaderboardScore,
                 qualityScore,
                 wishlistCount,
@@ -308,6 +409,7 @@ namespace Anchor.GameFlow
         private sealed class SerializableLeaderboardEntry
         {
             public string runId;
+            public string nickname;
             public int leaderboardScore;
             public int qualityScore;
             public int wishlistCount;

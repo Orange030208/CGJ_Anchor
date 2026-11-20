@@ -13,8 +13,8 @@ namespace Anchor.GameFlow.States
         {
             NotifyEntered(GameFlowState.Ending);
             var result = Controller.ResolveService.ResolveEnding(mBlack);
-            mBlack.SetEnding(result);
-            GameLeaderboardService.RecordGameEnd(mBlack, result);
+            var entry = GameLeaderboardService.RecordGameEnd(mBlack, result);
+            mBlack.SetEnding(result, entry.RunId);
             Controller.NotifyEndingSelected(result);
         }
     }

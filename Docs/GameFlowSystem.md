@@ -345,7 +345,9 @@ var rankings = GameLeaderboardService.GetRankings();
 var top10 = GameLeaderboardService.GetRankings(10);
 ```
 
-每次进入结局状态时，流程会自动记录当前 `WishlistCount` 和对应结局。`GetRankings` 返回值已经按愿望单数量从大到小排序，UI 可以直接读取 `Rank`、`WishlistCount`、`EndingId`、`EndingDisplayName` 和 `CompletedAtUtc` 展示。
+进入结局时会记录本局的质量分、愿望单、结局和完成时间。结局动画播完后，玩家填写昵称，`GameLeaderboardService.TrySetNickname` 通过 `RunId` 更新同一条记录。昵称在本机排行榜中唯一，旧记录仍可读取。
+
+完整记录存于 `Application.persistentDataPath/game_leaderboard.json`。`GetRankings` 按排行榜分数排序，并返回 `Nickname` 供 UI 展示。
 
 监听玩家属性变化：
 

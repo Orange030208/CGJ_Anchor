@@ -871,6 +871,7 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier:
   closeButton: {fileID: 222082377}
+  nicknameDialogPrefab: {fileID: 1326213914173234599, guid: f76abbe7b80de4b75a5f09c789272c91, type: 3}
 --- !u!114 &222082377 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 7596498905689529299, guid: 718a7dcbc8f1a13469156706e835e582, type: 3}

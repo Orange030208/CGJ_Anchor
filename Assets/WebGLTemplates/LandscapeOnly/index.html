@@ -30,6 +30,7 @@
       #unity-container.unity-desktop {
         width: {{{ WIDTH }}}px;
         height: {{{ HEIGHT }}}px;
+        overflow: visible;
       }
 
       #unity-canvas {
@@ -37,6 +38,20 @@
         height: 100%;
         display: block;
         background: {{{ BACKGROUND_COLOR }}};
+      }
+
+      #unity-container:is(:fullscreen, :-webkit-full-screen) {
+        transform: none;
+        overflow: hidden;
+      }
+
+      #unity-container:is(:fullscreen, :-webkit-full-screen) #unity-canvas {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        width: min(100vw, calc(100vh * {{{ WIDTH }}} / {{{ HEIGHT }}}));
+        height: min(100vh, calc(100vw * {{{ HEIGHT }}} / {{{ WIDTH }}}));
+        transform: translate(-50%, -50%);
       }
 
       #unity-loading-bar {
@@ -275,6 +290,7 @@
         symbolsUrl: buildUrl + "/{{{ SYMBOLS_FILENAME }}}",
 #endif
         streamingAssetsUrl: "StreamingAssets",
+        autoSyncPersistentDataPath: true,
         companyName: {{{ JSON.stringify(COMPANY_NAME) }}},
         productName: {{{ JSON.stringify(PRODUCT_NAME) }}},
         productVersion: {{{ JSON.stringify(PRODUCT_VERSION) }}},
@@ -284,9 +300,6 @@
       if (isMobile) {
         container.className = "unity-mobile";
         canvas.className = "unity-mobile";
-      } else {
-        canvas.style.width = "{{{ WIDTH }}}px";
-        canvas.style.height = "{{{ HEIGHT }}}px";
       }
 
 #if BACKGROUND_FILENAME
@@ -300,11 +313,14 @@
       script.onload = () => {
         createUnityInstance(canvas, config, (progress) => {
           progressBarFull.style.width = 100 * progress + "%";
-        }).then((unityInstance) => {
+        }).then(() => {
           loadingBar.style.display = "none";
-          fullscreenButton.onclick = () => {
-            unityInstance.SetFullscreen(1);
-            enterLandscapeMode();
+          fullscreenButton.onclick = async () => {
+            try {
+              await requestBrowserFullscreen();
+            } catch (e) {
+              unityShowBanner("无法进入全屏模式。", "warning");
+            }
           };
         }).catch((message) => {
           alert(message);

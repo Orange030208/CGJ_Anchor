@@ -83,6 +83,7 @@ namespace Anchor.GameFlow
         public WeekResolveResult LastWeekResult { get; private set; }
         public MonthSettlementResult LastMonthResult { get; private set; }
         public EndingResult EndingResult { get; private set; }
+        public string LeaderboardRunId { get; private set; }
 
         public IReadOnlyDictionary<GameDevelopmentTrack, int> ActionAllocations => mActionAllocations;
         public IReadOnlyList<int> ActiveBuffIds => mActiveBuffIds;
@@ -113,6 +114,7 @@ namespace Anchor.GameFlow
             LastWeekResult = default;
             LastMonthResult = default;
             EndingResult = default;
+            LeaderboardRunId = null;
             mActionAllocations.Clear();
             mActiveBuffIds.Clear();
             mTriggeredEventIds.Clear();
@@ -318,9 +320,10 @@ namespace Anchor.GameFlow
             PlayerAttributes.Set(CharacterAttributeIds.Bug, Math.Max(0, BugScore + result.BugDelta));
         }
 
-        public void SetEnding(EndingResult result)
+        public void SetEnding(EndingResult result, string leaderboardRunId = null)
         {
             EndingResult = result;
+            LeaderboardRunId = leaderboardRunId;
         }
 
         public int GetAllocatedPoints(GameDevelopmentTrack track)

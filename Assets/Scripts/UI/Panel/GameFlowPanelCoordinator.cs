@@ -183,7 +183,7 @@ namespace Anchor.UI.Panel
                     StartFlowRoutine(RouteFlowAfterCurrentState(runner));
                     break;
                 case GameFlowState.Ending:
-                    OpenGameEndPanel();
+                    OpenGameEndPanel(runner.Controller.Blackboard.LeaderboardRunId);
                     break;
                 default:
                     RouteCurrentState(runner);
@@ -232,7 +232,7 @@ namespace Anchor.UI.Panel
                     StartFlowRoutine(RouteFlowAfterCurrentState(runner));
                     break;
                 case GameFlowState.Ending:
-                    OpenGameEndPanel();
+                    OpenGameEndPanel(runner.Controller.Blackboard.LeaderboardRunId);
                     break;
             }
         }
@@ -264,7 +264,7 @@ namespace Anchor.UI.Panel
                         OpenBuffWindow();
                         yield break;
                     case GameFlowState.Ending:
-                        OpenGameEndPanel();
+                        OpenGameEndPanel(runner.Controller.Blackboard.LeaderboardRunId);
                         yield break;
                     default:
                         yield break;
@@ -762,7 +762,7 @@ namespace Anchor.UI.Panel
         /// <summary>
         /// 打开游戏结束页面。
         /// </summary>
-        private void OpenGameEndPanel()
+        private void OpenGameEndPanel(string runId)
         {
             GameEndPanelManager gameEndPanelManager = GameEndPanelManager.Instance;
 
@@ -772,7 +772,7 @@ namespace Anchor.UI.Panel
                 return;
             }
 
-            gameEndPanelManager.Open();
+            gameEndPanelManager.Open(runId);
         }
 
         /// <summary>

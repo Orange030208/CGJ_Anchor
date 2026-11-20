@@ -148,7 +148,7 @@ namespace Anchor.UI.Panel
             {
                 GameLeaderboardEntry entry = rankings[i];
                 currentRows.Add(new LeaderboardRowData(
-                    entry.EndingDisplayName,
+                    entry.Nickname,
                     entry.QualityScore,
                     entry.WishlistCount,
                     entry.EndingDisplayName,

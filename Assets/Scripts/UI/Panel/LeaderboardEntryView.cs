@@ -12,7 +12,7 @@ namespace Anchor.UI.Panel
         [SerializeField, Tooltip("显示名次的文本。")]
         private TextMeshProUGUI rankText;
 
-        [SerializeField, Tooltip("显示玩家、项目或结局名称的主文本。")]
+        [SerializeField, Tooltip("显示昵称，旧记录没有昵称时显示结局名称。")]
         private TextMeshProUGUI nameText;
 
         [SerializeField, Tooltip("显示质量分的文本。")]
@@ -41,13 +41,22 @@ namespace Anchor.UI.Panel
 
         public void InjectData(int rank, LeaderboardRowData data)
         {
+            string displayName = FormatName(rank, data);
+            string summary = data.Summary;
             SetText(rankText, rank.ToString());
-            SetText(nameText, FormatName(rank, data));
+            SetText(nameText, displayName);
             SetText(qualityText, FormatOptionalNumber(data.QualityScore));
             SetText(wishlistText, FormatOptionalNumber(data.WishlistCount));
-            SetText(endingText, string.IsNullOrWhiteSpace(data.EndingName) ? "未记录结局" : data.EndingName);
+            if (endingText != null && endingText != nameText)
+            {
+                SetText(endingText, string.IsNullOrWhiteSpace(data.EndingName) ? "未记录结局" : data.EndingName);
+            }
+            else if (!string.IsNullOrWhiteSpace(data.EndingName) && data.EndingName != displayName)
+            {
+                summary = string.IsNullOrWhiteSpace(summary) ? data.EndingName : $"{data.EndingName} · {summary}";
+            }
             SetText(timeText, FormatCompletedTime(data.CompletedAtUtcTicks));
-            SetSummary(data.Summary);
+            SetSummary(summary);
             ApplyRankColor(rank);
         }
 

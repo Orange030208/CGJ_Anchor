@@ -10,6 +10,7 @@ namespace Anchor.Editor
     public static class LeaderboardPanelPrefabBuilder
     {
         private const string PrefabPath = "Assets/Prefabs/LeaderboardPanel.prefab";
+        private const string FontPath = "Assets/Resources/Fonts/fusion-pixel-10px-monospaced-zh_hans SDF.asset";
         private const float RankColumnWidth = 84f;
         private const float QualityColumnWidth = 120f;
         private const float WishlistColumnWidth = 200f;
@@ -120,12 +121,12 @@ namespace Anchor.Editor
             layout.spacing = 18f;
             layout.childAlignment = TextAnchor.MiddleLeft;
             layout.childControlHeight = true;
-            layout.childControlWidth = false;
+            layout.childControlWidth = true;
             layout.childForceExpandHeight = true;
             layout.childForceExpandWidth = false;
 
             AddHeaderLabel(rect, "名次", RankColumnWidth, TextAlignmentOptions.Center);
-            AddHeaderLabel(rect, "结局", 0f, TextAlignmentOptions.Left);
+            AddHeaderLabel(rect, "昵称与结局", 0f, TextAlignmentOptions.Left);
             AddHeaderLabel(rect, "质量分", QualityColumnWidth, TextAlignmentOptions.Center);
             AddHeaderLabel(rect, "愿望单", WishlistColumnWidth, TextAlignmentOptions.Center);
             AddHeaderLabel(rect, "完成时间", TimeColumnWidth, TextAlignmentOptions.Center);
@@ -194,19 +195,25 @@ namespace Anchor.Editor
             layout.spacing = 18f;
             layout.childAlignment = TextAnchor.MiddleLeft;
             layout.childControlHeight = true;
-            layout.childControlWidth = false;
+            layout.childControlWidth = true;
             layout.childForceExpandHeight = true;
             layout.childForceExpandWidth = false;
 
             TextMeshProUGUI rankText = AddRowText(rect, "RankText", "1", 36, RankColumnWidth, TextAlignmentOptions.Center);
             RectTransform infoStack = CreateInfoStack(rect);
-            TextMeshProUGUI nameText = CreateText("NameText", infoStack, "好评如潮", 30, FontStyles.Bold, TextAlignmentOptions.Left);
+            TextMeshProUGUI nameText = CreateText("NameText", infoStack, "制作人", 30, FontStyles.Bold, TextAlignmentOptions.Left);
             TextMeshProUGUI summaryText = CreateText("SummaryText", infoStack, "结局简介", 21, FontStyles.Normal, TextAlignmentOptions.Left);
             TextMeshProUGUI qualityText = AddRowText(rect, "QualityText", "82", 30, QualityColumnWidth, TextAlignmentOptions.Center);
             TextMeshProUGUI wishlistText = AddRowText(rect, "WishlistText", "4,500,000", 28, WishlistColumnWidth, TextAlignmentOptions.Center);
             TextMeshProUGUI timeText = AddRowText(rect, "TimeText", "2026/07/05", 22, TimeColumnWidth, TextAlignmentOptions.Center);
 
             nameText.color = Color.white;
+            nameText.enableAutoSizing = true;
+            nameText.fontSizeMin = 20;
+            nameText.fontSizeMax = 30;
+            nameText.enableWordWrapping = false;
+            nameText.richText = false;
+            nameText.parseCtrlCharacters = false;
             summaryText.color = new Color(0.76f, 0.84f, 0.92f, 0.86f);
             rankText.color = new Color(1f, 0.94f, 0.70f, 1f);
             qualityText.color = new Color(0.74f, 1f, 0.76f, 1f);
@@ -218,7 +225,6 @@ namespace Anchor.Editor
             AssignObject(view, "nameText", nameText);
             AssignObject(view, "qualityText", qualityText);
             AssignObject(view, "wishlistText", wishlistText);
-            AssignObject(view, "endingText", nameText);
             AssignObject(view, "timeText", timeText);
             AssignObject(view, "summaryText", summaryText);
             AssignObject(view, "backgroundImage", background);
@@ -300,6 +306,9 @@ namespace Anchor.Editor
         {
             GameObject textObject = CreateRectObject(name, parent);
             TextMeshProUGUI label = textObject.AddComponent<TextMeshProUGUI>();
+            TMP_FontAsset font = AssetDatabase.LoadAssetAtPath<TMP_FontAsset>(FontPath);
+            label.font = font;
+            label.fontSharedMaterial = font.material;
             label.text = text;
             label.fontSize = fontSize;
             label.fontStyle = fontStyle;
