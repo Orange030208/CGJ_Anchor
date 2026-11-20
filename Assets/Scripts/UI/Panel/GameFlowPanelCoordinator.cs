@@ -182,6 +182,7 @@ namespace Anchor.UI.Panel
             foreach (var spawner in FindObjectsOfType<ButtonPrefabSpawner>())
             {
                 spawner.CloseTargetObject();
+                spawner.UnlockForCurrentWeek();
                 spawner.GetComponentInChildren<FloatingUIFan>(true)?.CompleteTransition();
             }
             FindObjectOfType<CinemachineScrollZoomController>()?.SwitchToDefaultCamera();

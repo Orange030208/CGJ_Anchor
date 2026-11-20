@@ -23,7 +23,9 @@ namespace Orange.Extraction
 
         public float NextNormalizedValue()
         {
-            return (float)random.NextDouble();
+            float value = (float)random.NextDouble();
+            // Rounding to float can turn a value below 1 into 1.
+            return value == 1f ? 0.99999994f : value;
         }
     }
 }
