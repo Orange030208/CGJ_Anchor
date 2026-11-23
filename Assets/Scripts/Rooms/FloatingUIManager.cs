@@ -61,6 +61,8 @@ public sealed class FloatingUIManager : MonoBehaviour
     public FloatingUIFan Fan => floatingUIFan;
     public FloatingUIActionPoints ActionPoints => actionPoints;
     public ButtonPrefabSpawner Spawner => buttonPrefabSpawner;
+    internal bool HasUsedActionThisWeek =>
+        GameFlowRunner.Instance?.Controller?.Blackboard.GetAllocatedPoints(GetDevelopmentTrack(type)) > 0;
 
     /// <summary>
     /// 添加组件时自动缓存当前层级下已有的 Floating UI 组件。

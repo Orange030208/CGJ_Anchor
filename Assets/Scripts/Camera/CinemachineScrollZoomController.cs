@@ -288,12 +288,19 @@ public class CinemachineScrollZoomController : MonoBehaviour
             return;
         }
 
-        if (ShouldBlockBindingSwitch(binding))
+        ButtonPrefabSpawner roomSpawner = FindRoomSpawner(binding);
+        if (roomSpawner?.IsLockedForCurrentWeek == true || ShouldBlockBindingSwitch(binding))
         {
             return;
         }
 
         LockGlowBinding(binding);
+        if (roomSpawner != null && roomSpawner.GetComponentInChildren<FloatingUIManager>(true)?.HasUsedActionThisWeek == true)
+        {
+            RefreshButtonInteractable();
+            return;
+        }
+
         ApplyBindingFollowTarget(binding);
         SwitchToCamera(binding.VirtualCamera);
     }
@@ -551,6 +558,7 @@ public class CinemachineScrollZoomController : MonoBehaviour
 
             // 有交互点处于展开状态时，只允许当前交互点继续点击，用于二次点击关闭。
             binding.Button.interactable = binding.Enabled
+                && FindRoomSpawner(binding)?.IsLockedForCurrentWeek != true
                 && !blockedByLockedInteraction
                 && (keepActiveButtonClickable || !disableActiveButton || !isActiveCameraButton);
         }
@@ -561,11 +569,13 @@ public class CinemachineScrollZoomController : MonoBehaviour
     /// </summary>
     private bool ShouldReturnLockedBindingToDefault(CameraButtonBinding binding)
     {
-        bool isCurrentCameraButton = binding.VirtualCamera == currentVirtualCamera;
-        bool isLockedGlowButton = lockedGlowBinding == binding;
-        return isCurrentCameraButton
-            && isLockedGlowButton
+        return lockedGlowBinding == binding
             && (activeButtonReturnsToDefaultCamera || blockOtherButtonsWhileInteractionActive);
+    }
+
+    private static ButtonPrefabSpawner FindRoomSpawner(CameraButtonBinding binding)
+    {
+        return binding.Button != null ? binding.Button.GetComponentInParent<ButtonPrefabSpawner>() : null;
     }
 
     /// <summary>
